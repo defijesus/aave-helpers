@@ -1,16 +1,35 @@
 // SPDX-License-Identifier: MIT
+/*
+   _      ΞΞΞΞ      _
+  /_;-.__ / _\  _.-;_\
+     `-._`'`_/'`.-'
+         `\   /`
+          |  /
+         /-.(
+         \_._\
+          \ \`;
+           > |/
+          / //
+          |//
+          \(\
+           ``
+     defijesus.eth
+*/
 pragma solidity ^0.8.0;
 
 import {IERC20} from 'solidity-utils/contracts/oz-common/interfaces/IERC20.sol';
 import {SafeERC20} from 'solidity-utils/contracts/oz-common/SafeERC20.sol';
 import {Ownable} from 'solidity-utils/contracts/oz-common/Ownable.sol';
-import {Rescuable} from 'solidity-utils/contracts/utils/Rescuable.sol';
-/// TODO include after Rescuable721 gets merged in
-// import {Rescuable721} from 'solidity-utils/contracts/utils/Rescuable721.sol';
+import {Rescuable721, Rescuable} from 'solidity-utils/contracts/utils/Rescuable721.sol';
 import {AaveV3Ethereum, AaveV3EthereumAssets} from 'aave-address-book/AaveV3Ethereum.sol';
 import {IAaveStethWithdrawer, IWithdrawalQueueERC721, IWETH} from './interfaces/IAaveStethWithdrawer.sol';
 
-contract AaveStethWithdrawer is Ownable, Rescuable, IAaveStethWithdrawer {
+/**
+ * @title AaveStethWithdrawer
+ * @author defijesus.eth
+ * @notice Helper contract to natively withdraw wstETH to the collector
+ */
+contract AaveStethWithdrawer is Ownable, Rescuable721, IAaveStethWithdrawer {
   using SafeERC20 for IERC20;
 
   /// auto incrementing index to store requestIds of withdrawals
