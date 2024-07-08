@@ -12,9 +12,9 @@ import {AaveStethWithdrawer} from '../../src/asset-manager/AaveStethWithdrawer.s
 contract AaveStethWithdrawerTest is Test {
   using stdStorage for StdStorage;
 
-  event StartedWithdrawal(uint256[] amounts, uint256 index);
+  event StartedWithdrawal(uint256[] amounts, uint256 indexed index);
 
-  event FinalizedWithdrawal(uint256 amount, uint256 index);
+  event FinalizedWithdrawal(uint256 amount, uint256 indexed index);
 
   address public constant EXECUTOR = GovernanceV3Ethereum.EXECUTOR_LVL_1;
   address public constant COLLECTOR = address(AaveV3Ethereum.COLLECTOR);
@@ -135,34 +135,29 @@ contract EmergencyTokenTransfer is AaveStethWithdrawerTest {
   }
 }
 
+contract Emergency721TokenTransfer is AaveStethWithdrawerTest {
+  function test_revertsIf_invalidCaller() public {
+    vm.expectRevert('ONLY_RESCUE_GUARDIAN');
+    withdrawerReadyToWithdraw.emergency721TokenTransfer(
+      address(UNSTETH),
+      COLLECTOR,
+      43947
+    );
+  }
 
-// TODO after Rescuable721 is merged into bgd/solidity-utils
-// contract Emergency721TokenTransfer is AaveStethWithdrawerTest {
-//   function test_revertsIf_invalidCaller() public {
-//     deal(address(WSTETH), address(withdrawer), 100);
-//     vm.expectRevert('ONLY_RESCUE_GUARDIAN');
-//     withdrawer.emergencyTokenTransfer(
-//       address(WSTETH),
-//       COLLECTOR,
-//       100
-//     );
-//   }
+  function test_successful_governanceCaller() public {
+    vm.startPrank(EXECUTOR);
+    withdrawerReadyToWithdraw.emergency721TokenTransfer(
+      address(UNSTETH),
+      COLLECTOR,
+      43947
+    );
+    vm.stopPrank();
 
-//   function test_successful_governanceCaller() public {
-//     uint256 initialCollectorBalance = WSTETH.balanceOf(COLLECTOR);
-//     deal(address(WSTETH), address(withdrawer), 100);
-//     vm.startPrank(EXECUTOR);
-//     withdrawer.emergencyTokenTransfer(
-//       address(WSTETH),
-//       COLLECTOR,
-//       100
-//     );
-//     vm.stopPrank();
-
-//     assertEq(
-//       WSTETH.balanceOf(COLLECTOR),
-//       initialCollectorBalance + 100
-//     );
-//     assertEq(WSTETH.balanceOf(address(withdrawer)), 0);
-//   }
-// }
+    assertEq(
+      UNSTETH.balanceOf(COLLECTOR),
+      1
+    );
+    assertEq(UNSTETH.balanceOf(address(withdrawerReadyToWithdraw)), 0);
+  }
+}
