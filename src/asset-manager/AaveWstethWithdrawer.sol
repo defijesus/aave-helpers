@@ -42,23 +42,23 @@ contract AaveWstethWithdrawer is Initializable, OwnableWithGuardian, Rescuable72
   mapping(uint256 => uint256[]) public requestIds;
 
   /// https://etherscan.io/address/0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1
-  IWithdrawalQueueERC721 public constant WSETH_WITHDRAWAL_QUEUE =
+  IWithdrawalQueueERC721 public constant WSTETH_WITHDRAWAL_QUEUE =
     IWithdrawalQueueERC721(0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1);
 
   function initialize() external initializer {
     _transferOwnership(GovernanceV3Ethereum.EXECUTOR_LVL_1);
     _updateGuardian(0x2cc1ADE245020FC5AAE66Ad443e1F66e01c54Df1);
     IERC20(AaveV3EthereumAssets.wstETH_UNDERLYING).approve(
-      address(WSETH_WITHDRAWAL_QUEUE),
+      address(WSTETH_WITHDRAWAL_QUEUE),
       type(uint256).max
     );
-    minCheckpointIndex = WSETH_WITHDRAWAL_QUEUE.getLastCheckpointIndex();
+    minCheckpointIndex = WSTETH_WITHDRAWAL_QUEUE.getLastCheckpointIndex();
   }
 
   /// @inheritdoc IAaveWstethWithdrawer
   function startWithdraw(uint256[] calldata amounts) external onlyOwnerOrGuardian {
     uint256 index = nextIndex++;
-    uint256[] memory rIds = WSETH_WITHDRAWAL_QUEUE.requestWithdrawalsWstETH(amounts, address(this));
+    uint256[] memory rIds = WSTETH_WITHDRAWAL_QUEUE.requestWithdrawalsWstETH(amounts, address(this));
 
     requestIds[index] = rIds;
     emit StartedWithdrawal(amounts, index);
@@ -67,13 +67,13 @@ contract AaveWstethWithdrawer is Initializable, OwnableWithGuardian, Rescuable72
   /// @inheritdoc IAaveWstethWithdrawer
   function finalizeWithdraw(uint256 index) external onlyOwnerOrGuardian {
     uint256[] memory reqIds = requestIds[index];
-    uint256[] memory hintIds = WSETH_WITHDRAWAL_QUEUE.findCheckpointHints(
+    uint256[] memory hintIds = WSTETH_WITHDRAWAL_QUEUE.findCheckpointHints(
       reqIds,
       minCheckpointIndex,
-      WSETH_WITHDRAWAL_QUEUE.getLastCheckpointIndex()
+      WSTETH_WITHDRAWAL_QUEUE.getLastCheckpointIndex()
     );
 
-    WSETH_WITHDRAWAL_QUEUE.claimWithdrawalsTo(reqIds, hintIds, address(this));
+    WSTETH_WITHDRAWAL_QUEUE.claimWithdrawalsTo(reqIds, hintIds, address(this));
 
     uint256 ethBalance = address(this).balance;
 
