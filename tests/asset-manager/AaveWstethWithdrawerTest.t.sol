@@ -78,9 +78,9 @@ contract AaveWstethWithdrawerTest is Test {
   }
 
   function setUp() public {
-    vm.createSelectFork(vm.rpcUrl('mainnet'), 20363790);
-    withdrawer = AaveWstethWithdrawer(payable(0x9f489554d5909F372d80C88229E83dcB6629827a));
-    UNSTETH = IERC20(address(withdrawer.WSETH_WITHDRAWAL_QUEUE()));
+    vm.createSelectFork(vm.rpcUrl('mainnet'), 20369591);
+    withdrawer = AaveWstethWithdrawer(payable(0x2C4d3C146b002079949d7EecD07f261A39c98c4d));
+    UNSTETH = IERC20(address(withdrawer.WSTETH_WITHDRAWAL_QUEUE()));
   }
 }
 
